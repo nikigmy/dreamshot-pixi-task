@@ -1,5 +1,8 @@
 import { DisplayObject, Sprite } from "pixi.js";
 
+/** 
+ * center objects to the middle of the window 
+ */
 export function centerObjects(...toCenter: DisplayObject[]) {
   const center = (obj: DisplayObject) => {
     obj.x = window.innerWidth / 2;
