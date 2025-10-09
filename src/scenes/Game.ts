@@ -1,6 +1,5 @@
 import config from "../config";
-import ParallaxBackground from "../prefabs/ParallaxBackground";
-import { Character } from "../prefabs/Character";
+import CenteredBackground from "../prefabs/CenteredBackground";
 import { Container, Text, Graphics } from "pixi.js";
 import { centerObjects } from "../utils/misc";
 import Keyboard from "../core/Keyboard";
@@ -11,8 +10,7 @@ export default class Game extends Container {
 
   private keyboard = Keyboard.getInstance();
 
-  private character!: Character;
-  private background!: ParallaxBackground;
+  private background!: CenteredBackground;
 
   constructor(protected utils: SceneUtils) {
     super();
@@ -47,13 +45,8 @@ export default class Game extends Container {
   async start() {
     this.removeChildren();
 
-    this.background = new ParallaxBackground(config.backgrounds.forest);
-    this.character = new Character();
-
-    this.character.x = window.innerWidth / 2;
-    this.character.y = window.innerHeight - this.character.height / 3;
-
-    this.addChild(this.background, this.character);
+    this.background = new CenteredBackground(config.backgrounds.vault);
+    this.addChild(this.background);
   }
 
   /**
@@ -61,10 +54,6 @@ export default class Game extends Container {
    * @param delta 
    */
   update(delta: number) {
-    // just some example update logic, reposition paralax background to character
-    const x = this.character.velocity.x * delta;
-    const y = this.character.velocity.y * delta;
-    this.background.updatePosition(x, y);
   }
 
   /**
@@ -74,13 +63,12 @@ export default class Game extends Container {
    */
   onResize(width: number, height: number) {
     // resize handling logic here
+    this.background.resize(width, height);
   }
 
   private onActionPress(action: keyof typeof Keyboard.actions) {
-    this.character.onActionPress(action);
   }
 
   onActionRelease(action: keyof typeof Keyboard.actions) {
-    this.character.onActionRelease(action);
   }
 }

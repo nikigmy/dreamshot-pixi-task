@@ -1,4 +1,4 @@
-import type { BgConfig } from "./prefabs/ParallaxBackground";
+import type { BgConfig } from "./prefabs/CenteredBackground";
 
 type Config = {
   backgrounds: Record<string, BgConfig>;
@@ -6,18 +6,11 @@ type Config = {
 
 export default {
   backgrounds: {
-    forest: {
+    vault: {
       layers: [
-        "sky",
-        "clouds_1",
-        "rocks",
-        "clouds_2",
-        "ground_1",
-        "ground_2",
-        "ground_3",
-        "plant",
+        "background",
       ],
-      panSpeed: 0.2,
+      minAspectRatio : 1
     },
   },
 } as Config;
