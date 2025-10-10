@@ -1,4 +1,5 @@
 import { DisplayObject, Sprite } from "pixi.js";
+import { SpriteConfig } from "../prefabs/Door";
 
 /** 
  * center objects to the middle of the window 
@@ -30,4 +31,29 @@ export async function after(
 
 export function getEntries<T extends object>(obj: T) {
   return Object.entries(obj) as Entries<T>;
+}
+
+
+export function  resizeSprite(sprite: Sprite, scaling: number, width: number, height: number, minAspectRatio: number) {
+    const spriteAspectRatio = sprite.texture.width / sprite.texture.height;
+    const aspectRatio = width / height;
+
+    if(aspectRatio < minAspectRatio)
+    {
+        height = width / minAspectRatio;
+    }
+
+    sprite.height = height * scaling;
+    sprite.width = sprite.height * spriteAspectRatio;
+}
+
+export function  repositionSprite(sprite: Sprite, offsetX: number, offsetY: number) {
+    const scalingRatio = sprite.height / sprite.texture.height;
+    sprite.position.set(offsetX * scalingRatio, offsetY * scalingRatio)
+}
+
+
+export function processSpriteResize(sprite: Sprite, config: SpriteConfig, width: number, height: number, minAspectRatio: number) {
+    resizeSprite(sprite, config.scaling, width, height, minAspectRatio);
+    repositionSprite(sprite, config.offset.x, config.offset.y);
 }

@@ -4,16 +4,20 @@ import { Container, Text, Graphics } from "pixi.js";
 import { centerObjects } from "../utils/misc";
 import Keyboard from "../core/Keyboard";
 import { SceneUtils } from "../core/App";
+import Door from "../prefabs/Door";
 
 export default class Game extends Container {
   name = "Game";
 
   private keyboard = Keyboard.getInstance();
+  private blockInput: boolean;
 
   private background!: CenteredBackground;
+  private door!: Door;
 
   constructor(protected utils: SceneUtils) {
     super();
+    this.blockInput = false;
   }
 
   async load() {
@@ -38,7 +42,6 @@ export default class Game extends Container {
 
     this.keyboard.onAction(({ action, buttonState }) => {
       if (buttonState === "pressed") this.onActionPress(action);
-      else if (buttonState === "released") this.onActionRelease(action);
     });
   }
 
@@ -46,7 +49,8 @@ export default class Game extends Container {
     this.removeChildren();
 
     this.background = new CenteredBackground(config.backgrounds.vault);
-    this.addChild(this.background);
+    this.door = new Door(config.door, config.backgrounds.vault);
+    this.addChild(this.background, this.door);
   }
 
   /**
@@ -64,11 +68,29 @@ export default class Game extends Container {
   onResize(width: number, height: number) {
     // resize handling logic here
     this.background.resize(width, height);
+    this.door.resize(width, height);
   }
 
   private onActionPress(action: keyof typeof Keyboard.actions) {
-  }
+    console.log("input: " + this.blockInput);
+    if(this.blockInput){
+      return;
+    }
 
-  onActionRelease(action: keyof typeof Keyboard.actions) {
+    if(action == "LEFT"){
+      this.blockInput = true;
+      this.door.turnLeft(() => this.blockInput = false);
+    }
+    else if(action == "RIGHT"){
+      this.blockInput = true;
+      this.door.turnRight(() => this.blockInput = false);
+    }
+    else if(action == "UP"){
+      this.door.toggleDoor(false, () => {})
+      // this.door.spinFuriously(() => {});
+    }
+    else{
+      this.door.spinFuriously(() => {})
+    }
   }
 }
