@@ -8,6 +8,7 @@ import Door from "../prefabs/Door";
 import Keypad from "../prefabs/Keypad";
 import { SimplePoint } from "../prefabs/SimplePoint";
 import Queue from "../prefabs/Queue";
+import Sparcles from "../prefabs/Sparcles";
 
 export type GlobalConfig = {
   minAspectRatio: number,
@@ -27,6 +28,7 @@ export default class Game extends Container {
 
   private background!: CenteredBackground;
   private door!: Door;
+  private sparcles!: Sparcles;
   private keypad!: Keypad;
   private password!: Queue<number>;
 
@@ -47,7 +49,6 @@ export default class Game extends Container {
       fill: "white",
     });
     text.resolution = 2;
-
     this.addChild(bg, text);
 
     await this.utils.assetLoader.loadAssets();
@@ -65,9 +66,10 @@ export default class Game extends Container {
     this.background = new CenteredBackground(config.backgrounds.vault, config.global);
     this.door = new Door(config.door, config.global);
     this.keypad = new Keypad(config.keypad);
+    this.sparcles = new Sparcles(config.sparcles, config.global);
     this.keypad.start();
 
-    this.addChild(this.background, this.door, this.keypad);
+    this.addChild(this.background, this.door, this.keypad, this.sparcles);
   }
 
   /**
@@ -88,6 +90,7 @@ export default class Game extends Container {
     this.background.resize(width, height);
     this.door.resize(width, height);
     this.keypad.resize(width, height);
+    this.sparcles.resize(width, height);
   }
 
   public isGameComplete (): boolean{
@@ -128,7 +131,10 @@ export default class Game extends Container {
   private checkForgameCompletion() {
     if(this.isGameComplete()){
       this.keypad.stop();
-      this.door.toggleDoor(true).then(() => this.resetGame());
+      this.door.toggleDoor(true).then(() => {
+          this.sparcles.showEffect();
+          this.resetGame();
+      });
     }
     else{
       this.blockInput = false
@@ -140,6 +146,7 @@ export default class Game extends Container {
     wait(time).then(() => {
       this.keypad.reset();
       this.keypad.start();
+      this.sparcles.stopEffect();
       this.door.toggleDoor(false).then(() => {this.blockInput = false;});
     });
   }

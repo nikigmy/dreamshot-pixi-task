@@ -1,6 +1,7 @@
 import type { BgConfig } from "./prefabs/CenteredBackground";
 import type { DoorConfig } from "./prefabs/Door";
 import { KeypadConfig } from "./prefabs/Keypad";
+import { SparclesConfig } from "./prefabs/Sparcles";
 import { GlobalConfig, PasswordConfig } from "./scenes/Game";
 
 type Config = {
@@ -8,6 +9,7 @@ type Config = {
   password: PasswordConfig
   backgrounds: Record<string, BgConfig>;
   door: DoorConfig;
+  sparcles: SparclesConfig;
   keypad: KeypadConfig;
 };
 
@@ -39,6 +41,14 @@ export default {
       handleSpinDiration: 0.25,
       openDuration: 1,
       spinRepeats: 2,
+  },
+  sparcles:{
+    count: 10,
+    radius: 220,
+    spriteConfig: {name: "shine", anchor: {x: 0.5, y: 0.5}, scaling: 0.93},
+    minDuration: 0.6,
+    maxDuration: 1,
+    hideDuration: 0.2,
   },
   keypad:{
     anchor: {x: 0.5, y: 0.5},
