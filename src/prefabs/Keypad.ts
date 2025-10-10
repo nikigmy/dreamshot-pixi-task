@@ -18,12 +18,10 @@ export  default class Keypad extends Container {
   private display: Text;
   private running: boolean = false;
   private blinkTimeline!: gsap.core.Timeline;
-  private config: KeypadConfig
   temp!: number | string; 
 
-  constructor(config: KeypadConfig) {
+  constructor(protected config: KeypadConfig) {
     super();
-    this.config = config;
     this.display = new Text(this.formatTime(0), this.config.textStyle);
     this.display.anchor.set(this.config.anchor.x, this.config.anchor.y);
     this.resizeTimer(window.innerWidth, window.innerHeight);

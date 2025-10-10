@@ -58,9 +58,9 @@ export function  repositionSprite(sprite: Sprite, offsetX: number, offsetY: numb
 }
 
 
-export function processSpriteResize(sprite: Sprite, config: SpriteConfig, width: number, height: number, globalConfig: GlobalConfig) {
-    resizeSprite(sprite, config.scaling, width, height, globalConfig);
-    repositionSprite(sprite, config.offset.x, config.offset.y);
+export function processSpriteResize(sprite: Sprite, config: Partial<SpriteConfig>, width: number, height: number, globalConfig: GlobalConfig) {
+    resizeSprite(sprite, config.scaling!, width, height, globalConfig);
+    repositionSprite(sprite, config.offset!.x, config.offset!.y);
 }
 
 export function toNumber(value: string | number): number {

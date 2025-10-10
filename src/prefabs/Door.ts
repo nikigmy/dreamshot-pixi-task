@@ -1,5 +1,5 @@
 import { Container, IDestroyOptions, Sprite, Texture } from "pixi.js";
-import { centerObjects, processSpriteResize, repositionSprite, resizeSprite } from "../utils/misc";
+import { centerObjects, processSpriteResize } from "../utils/misc";
 import gsap from "gsap";
 import { GlobalConfig } from "../scenes/Game";
 import { SpriteConfig } from "./SpriteConfig";
@@ -20,19 +20,15 @@ export type DoorConfig = {
 export default class Door extends Container {
   name = "Door";
 
-    private config: DoorConfig;
     private closedSprite: Sprite;
     private handleSprite: Sprite;
     private handleShadowSprite!: Sprite;
     private openSprite: Sprite;
     private openShadow: Sprite;
-    private globalConfig: GlobalConfig;
 
-    constructor(config: DoorConfig, globalConfig: GlobalConfig) {
+    constructor(protected config: DoorConfig, protected globalConfig: GlobalConfig) {
         super();
         centerObjects(this);
-        this.config = config;
-        this.globalConfig = globalConfig;
 
         this.closedSprite = this.loadSprite(this.config.closed, 1);
         this.handleShadowSprite = this.loadSprite(this.config.handleShadow, 1);
@@ -49,8 +45,7 @@ export default class Door extends Container {
         sprite.name = config.name;
         sprite.alpha = alpha;
         this.addChild(sprite);
-        resizeSprite(sprite, config.scaling, window.innerWidth, window.innerHeight, this.globalConfig);
-        repositionSprite(sprite, config.offset.x, config.offset.y);
+        processSpriteResize(sprite, config, window.innerWidth, window.innerHeight, this.globalConfig);
         return sprite;
     }
 
