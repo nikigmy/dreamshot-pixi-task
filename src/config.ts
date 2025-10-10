@@ -1,11 +1,13 @@
 import type { BgConfig } from "./prefabs/CenteredBackground";
 import type { DoorConfig } from "./prefabs/Door";
+import { KeypadConfig } from "./prefabs/Keypad";
 import { GlobalConfig } from "./scenes/Game";
 
 type Config = {
   global: GlobalConfig;
   backgrounds: Record<string, BgConfig>;
   door: DoorConfig;
+  keypad: KeypadConfig;
 };
 
 export default {
@@ -32,4 +34,12 @@ export default {
       openDuration: 1,
       spinRepeats: 2,
   },
+  keypad:{
+    anchor: {x: 0.5, y: 0.5},
+    offset: {x: -448, y: -56},
+    blinkingDuration: 0.5,
+    errorText: "XXXX",
+    referenceScreenHeigh: 1080,
+    textStyle: { fill: "red", fontSize: 25, fontFamily: "Verdana"}
+  }
 } as Config;

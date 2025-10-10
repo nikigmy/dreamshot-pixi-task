@@ -5,6 +5,7 @@ import { centerObjects } from "../utils/misc";
 import Keyboard from "../core/Keyboard";
 import { SceneUtils } from "../core/App";
 import Door from "../prefabs/Door";
+import Keypad from "../prefabs/Keypad";
 import { SimplePoint } from "../prefabs/SimplePoint";
 
 export type GlobalConfig = {
@@ -20,6 +21,7 @@ export default class Game extends Container {
 
   private background!: CenteredBackground;
   private door!: Door;
+  private keypad!: Keypad;
 
   constructor(protected utils: SceneUtils) {
     super();
@@ -56,8 +58,10 @@ export default class Game extends Container {
 
     this.background = new CenteredBackground(config.backgrounds.vault, config.global);
     this.door = new Door(config.door, config.global);
+    this.keypad = new Keypad(config.keypad);
+    this.keypad.start();
 
-    this.addChild(this.background, this.door);
+    this.addChild(this.background, this.door, this.keypad);
   }
 
   /**
@@ -65,6 +69,7 @@ export default class Game extends Container {
    * @param delta 
    */
   update(delta: number) {
+    this.keypad.update(delta);
   }
 
   /**
@@ -76,6 +81,7 @@ export default class Game extends Container {
     // resize handling logic here
     this.background.resize(width, height);
     this.door.resize(width, height);
+    this.keypad.resize(width, height);
   }
 
   private onActionPress(action: keyof typeof Keyboard.actions) {
@@ -94,9 +100,13 @@ export default class Game extends Container {
     else if(action == "UP"){
       this.door.toggleDoor(false, () => {})
       // this.door.spinFuriously(() => {});
+      this.keypad.stop();
+      this.keypad.setCustomText("XXXX");
     }
     else{
       this.door.toggleDoor(true, () => {})
+      this.keypad.reset();
+      this.keypad.start();
       // this.door.spinFuriously(() => {})
     }
   }
