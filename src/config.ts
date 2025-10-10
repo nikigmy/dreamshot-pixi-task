@@ -1,10 +1,11 @@
 import type { BgConfig } from "./prefabs/CenteredBackground";
 import type { DoorConfig } from "./prefabs/Door";
 import { KeypadConfig } from "./prefabs/Keypad";
-import { GlobalConfig } from "./scenes/Game";
+import { GlobalConfig, PasswordConfig } from "./scenes/Game";
 
 type Config = {
   global: GlobalConfig;
+  password: PasswordConfig
   backgrounds: Record<string, BgConfig>;
   door: DoorConfig;
   keypad: KeypadConfig;
@@ -13,7 +14,12 @@ type Config = {
 export default {
   global: {
     minAspectRatio: 1,
-    referenceResolution: {x: 1920, y: 1080}
+    referenceResolution: {x: 1920, y: 1080},
+    gameTimeout: 5,
+  },
+  password: {
+    maxTurns: 9,
+    squences: 3,
   },
   backgrounds: {
     vault: {

@@ -70,6 +70,10 @@ export  default class Keypad extends Container {
         gsap.to(this.display, {alpha: 1})
     }
 
+    public setErrorText(){
+        this.display.text = this.config.errorText;
+    }
+
     public setCustomText(str: string){
         this.display.text = str;
     }

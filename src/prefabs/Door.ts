@@ -40,7 +40,6 @@ export default class Door extends Container {
 
         this.openShadow = this.loadSprite(this.config.openShadow, 0);
         this.openSprite = this.loadSprite(this.config.open, 0);
-
     }
 
     private loadSprite(config: SpriteConfig, alpha: number): Sprite{
@@ -55,22 +54,23 @@ export default class Door extends Container {
         return sprite;
     }
 
-    turnLeft(callback: () => void){
-        this.turnHandle(callback, this.config.handleSpinDegrees);
+    public turnLeft(){
+        return this.turnHandle(this.config.handleSpinDegrees);
     }
 
-    turnRight(callback: () => void){
-        this.turnHandle(callback, -this.config.handleSpinDegrees);
+    public turnRight(){
+        return this.turnHandle(-this.config.handleSpinDegrees);
     }
 
-    private turnHandle(callback: () => void, degrees: number){
+    private turnHandle(degrees: number){
         const timeline = gsap.timeline({defaults : { duration : this.config.handleSpinDiration}});
         timeline.to(this.handleSprite,       {  angle: `-=${degrees}`});
         timeline.to(this.handleShadowSprite, {  angle: `-=${degrees}`}, "<");
-        timeline.eventCallback('onComplete', callback ?? (() => {}));
+
+        return new Promise<void>((res) => timeline.eventCallback('onComplete', res));
     }
 
-    spinFuriously(callback: () => void){
+    public spinFuriously(){
         const timeline = gsap.timeline()
         const spin = gsap.timeline({defaults : { duration : this.config.handleSpinDiration, repeat: this.config.spinRepeats}})
         .to(this.handleSprite,       {  angle: '+=360', ease: 'none'})
@@ -78,13 +78,14 @@ export default class Door extends Container {
 
         timeline.add(spin)
         .to(this.handleSprite,       {  angle: 0, ease: 'none'})
-        .to(this.handleShadowSprite, {  angle: 0, ease: 'none'}, "<")
-        .eventCallback('onComplete', callback ?? (() => {}));
+        .to(this.handleShadowSprite, {  angle: 0, ease: 'none'}, "<");
+
+        return new Promise<void>((res) => timeline.eventCallback('onComplete', res));
     }
 
-    toggleDoor(open: boolean, callback: () => void){
-        const openObjectsAlpha = open ? 0 : 1;
-        const closedObjectsAlpha = open ? 1 : 0;
+    public toggleDoor(open: boolean){
+        const openObjectsAlpha = open ? 1 : 0;
+        const closedObjectsAlpha = open ? 0 : 1;
         
         const timeline = gsap.timeline({defaults : { duration : this.config.openDuration}});
 
@@ -93,10 +94,11 @@ export default class Door extends Container {
         timeline.to(this.closedSprite,       {alpha: closedObjectsAlpha}, "<")
         timeline.to(this.openSprite,         {alpha: openObjectsAlpha},   "<")
         timeline.to(this.openShadow,         {alpha: openObjectsAlpha},   "<")
-        timeline.eventCallback('onComplete', callback ?? (() => {}));
+
+        return new Promise<void>((res) => timeline.eventCallback('onComplete', res));
     }
 
-    resize(width: number, height: number) {
+    public resize(width: number, height: number) {
         processSpriteResize(this.closedSprite, this.config.closed, width, height, this.globalConfig);
         processSpriteResize(this.handleSprite, this.config.handle, width, height, this.globalConfig);
         processSpriteResize(this.handleShadowSprite, this.config.handleShadow, width, height, this.globalConfig);
@@ -106,7 +108,7 @@ export default class Door extends Container {
         centerObjects(this);
     }
 
-    destroy(options?: IDestroyOptions | boolean): void {
+    public destroy(options?: IDestroyOptions | boolean): void {
         gsap.killTweensOf([this.closedSprite, this.handleSprite, this.handleShadowSprite, this.openSprite, this.openShadow]);
         super.destroy(options);
     }
