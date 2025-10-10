@@ -1,5 +1,7 @@
 import { DisplayObject, Sprite } from "pixi.js";
 import { SpriteConfig } from "../prefabs/Door";
+import { SimplePoint } from "../prefabs/SimplePoint";
+import { GlobalConfig } from "../scenes/Game";
 
 /** 
  * center objects to the middle of the window 
@@ -34,17 +36,20 @@ export function getEntries<T extends object>(obj: T) {
 }
 
 
-export function  resizeSprite(sprite: Sprite, scaling: number, width: number, height: number, minAspectRatio: number) {
-    const spriteAspectRatio = sprite.texture.width / sprite.texture.height;
+export function  resizeSprite(sprite: Sprite, scaling: number, width: number, height: number, globalConfig: GlobalConfig) {
+    const screenScaling = getScreenScaling(width,  height, globalConfig);
+    sprite.height = sprite.texture.height * scaling * screenScaling;
+    sprite.width = sprite.texture.width * scaling * screenScaling;
+}
+
+export function getScreenScaling(width: number, height: number, globalConfig: GlobalConfig): number{
     const aspectRatio = width / height;
 
-    if(aspectRatio < minAspectRatio)
+    if(aspectRatio < globalConfig.minAspectRatio)
     {
-        height = width / minAspectRatio;
+        height = width / globalConfig.minAspectRatio;
     }
-
-    sprite.height = height * scaling;
-    sprite.width = sprite.height * spriteAspectRatio;
+    return height / globalConfig.referenceResolution.y;
 }
 
 export function  repositionSprite(sprite: Sprite, offsetX: number, offsetY: number) {
@@ -53,7 +58,19 @@ export function  repositionSprite(sprite: Sprite, offsetX: number, offsetY: numb
 }
 
 
-export function processSpriteResize(sprite: Sprite, config: SpriteConfig, width: number, height: number, minAspectRatio: number) {
-    resizeSprite(sprite, config.scaling, width, height, minAspectRatio);
+export function processSpriteResize(sprite: Sprite, config: SpriteConfig, width: number, height: number, globalConfig: GlobalConfig) {
+    resizeSprite(sprite, config.scaling, width, height, globalConfig);
     repositionSprite(sprite, config.offset.x, config.offset.y);
+}
+
+export function toNumber(value: string | number): number {
+  if (typeof value === "number") {
+    return value;
+  }
+
+  const num = Number(value);
+  if (isNaN(num)) {
+    throw new Error(`Cannot convert "${value}" to number`);
+  }
+  return num;
 }

@@ -1,16 +1,10 @@
 import { Container, IDestroyOptions, Sprite, Texture } from "pixi.js";
-import { BgConfig } from "./CenteredBackground";
-import { SimplePoint } from "./SimplePoint";
 import { centerObjects, processSpriteResize, repositionSprite, resizeSprite } from "../utils/misc";
 import gsap from "gsap";
+import { GlobalConfig } from "../scenes/Game";
+import { SpriteConfig } from "./SpriteConfig";
 
 
-export type SpriteConfig = {
-    name: string;
-    scaling: number;
-    anchor: SimplePoint;
-    offset: SimplePoint;
-}
 export type DoorConfig = {
     closed: SpriteConfig;
     handle: SpriteConfig;
@@ -32,13 +26,13 @@ export default class Door extends Container {
     private handleShadowSprite!: Sprite;
     private openSprite: Sprite;
     private openShadow: Sprite;
-    private backgroundConfig: BgConfig;
+    private globalConfig: GlobalConfig;
 
-    constructor(config: DoorConfig, bgConfig: BgConfig) {
+    constructor(config: DoorConfig, globalConfig: GlobalConfig) {
         super();
         centerObjects(this);
         this.config = config;
-        this.backgroundConfig = bgConfig;
+        this.globalConfig = globalConfig;
 
         this.closedSprite = this.loadSprite(this.config.closed, 1);
         this.handleShadowSprite = this.loadSprite(this.config.handleShadow, 1);
@@ -56,7 +50,7 @@ export default class Door extends Container {
         sprite.name = config.name;
         sprite.alpha = alpha;
         this.addChild(sprite);
-        resizeSprite(sprite, config.scaling, window.innerWidth, window.innerHeight, this.backgroundConfig.minAspectRatio);
+        resizeSprite(sprite, config.scaling, window.innerWidth, window.innerHeight, this.globalConfig);
         repositionSprite(sprite, config.offset.x, config.offset.y);
         return sprite;
     }
@@ -103,11 +97,11 @@ export default class Door extends Container {
     }
 
     resize(width: number, height: number) {
-        processSpriteResize(this.closedSprite, this.config.closed, width, height, this.backgroundConfig.minAspectRatio);
-        processSpriteResize(this.handleSprite, this.config.handle, width, height, this.backgroundConfig.minAspectRatio);
-        processSpriteResize(this.handleShadowSprite, this.config.handleShadow, width, height, this.backgroundConfig.minAspectRatio);
-        processSpriteResize(this.openSprite, this.config.open, width, height, this.backgroundConfig.minAspectRatio);
-        processSpriteResize(this.openShadow, this.config.openShadow, width, height, this.backgroundConfig.minAspectRatio);
+        processSpriteResize(this.closedSprite, this.config.closed, width, height, this.globalConfig);
+        processSpriteResize(this.handleSprite, this.config.handle, width, height, this.globalConfig);
+        processSpriteResize(this.handleShadowSprite, this.config.handleShadow, width, height, this.globalConfig);
+        processSpriteResize(this.openSprite, this.config.open, width, height, this.globalConfig);
+        processSpriteResize(this.openShadow, this.config.openShadow, width, height, this.globalConfig);
 
         centerObjects(this);
     }

@@ -5,6 +5,12 @@ import { centerObjects } from "../utils/misc";
 import Keyboard from "../core/Keyboard";
 import { SceneUtils } from "../core/App";
 import Door from "../prefabs/Door";
+import { SimplePoint } from "../prefabs/SimplePoint";
+
+export type GlobalConfig = {
+  minAspectRatio: number,
+  referenceResolution: SimplePoint
+}
 
 export default class Game extends Container {
   name = "Game";
@@ -48,8 +54,9 @@ export default class Game extends Container {
   async start() {
     this.removeChildren();
 
-    this.background = new CenteredBackground(config.backgrounds.vault);
-    this.door = new Door(config.door, config.backgrounds.vault);
+    this.background = new CenteredBackground(config.backgrounds.vault, config.global);
+    this.door = new Door(config.door, config.global);
+
     this.addChild(this.background, this.door);
   }
 
@@ -72,7 +79,6 @@ export default class Game extends Container {
   }
 
   private onActionPress(action: keyof typeof Keyboard.actions) {
-    console.log("input: " + this.blockInput);
     if(this.blockInput){
       return;
     }
@@ -90,7 +96,8 @@ export default class Game extends Container {
       // this.door.spinFuriously(() => {});
     }
     else{
-      this.door.spinFuriously(() => {})
+      this.door.toggleDoor(true, () => {})
+      // this.door.spinFuriously(() => {})
     }
   }
 }
