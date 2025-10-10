@@ -67,7 +67,6 @@ export default class Sparcles extends Container {
     }
 
     public resize(width: number, height: number){
-        console.log("resize");
         centerObjects(this);
         for(let i = 0; i < this.config.count; i++)
         {
