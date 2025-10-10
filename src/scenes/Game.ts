@@ -1,16 +1,22 @@
 import config from "../config";
 import CenteredBackground from "../prefabs/CenteredBackground";
 import { Container, Text, Graphics } from "pixi.js";
-import { centerObjects } from "../utils/misc";
+import { generatePassword, wait } from "../utils/misc";
 import Keyboard from "../core/Keyboard";
 import { SceneUtils } from "../core/App";
 import Door from "../prefabs/Door";
 import Keypad from "../prefabs/Keypad";
 import { SimplePoint } from "../prefabs/SimplePoint";
+import Queue from "../prefabs/Queue";
 
 export type GlobalConfig = {
   minAspectRatio: number,
-  referenceResolution: SimplePoint
+  referenceResolution: SimplePoint,
+  gameTimeout: number;
+}
+export type PasswordConfig = {
+  maxTurns: number,
+  squences: number,
 }
 
 export default class Game extends Container {
@@ -22,6 +28,7 @@ export default class Game extends Container {
   private background!: CenteredBackground;
   private door!: Door;
   private keypad!: Keypad;
+  private password!: Queue<number>;
 
   constructor(protected utils: SceneUtils) {
     super();
@@ -41,9 +48,6 @@ export default class Game extends Container {
     });
     text.resolution = 2;
 
-    // example use of utils functions
-    centerObjects(text);
-
     this.addChild(bg, text);
 
     await this.utils.assetLoader.loadAssets();
@@ -52,9 +56,11 @@ export default class Game extends Container {
       if (buttonState === "pressed") this.onActionPress(action);
     });
   }
+  
 
   async start() {
     this.removeChildren();
+    this.password = generatePassword(config.password);
 
     this.background = new CenteredBackground(config.backgrounds.vault, config.global);
     this.door = new Door(config.door, config.global);
@@ -84,30 +90,57 @@ export default class Game extends Container {
     this.keypad.resize(width, height);
   }
 
+  public isGameComplete (): boolean{
+    return this.password.isEmpty();
+  }
+  
   private onActionPress(action: keyof typeof Keyboard.actions) {
     if(this.blockInput){
       return;
     }
 
     if(action == "LEFT"){
-      this.blockInput = true;
-      this.door.turnLeft(() => this.blockInput = false);
+      this.checkInput(0);
     }
-    else if(action == "RIGHT"){
-      this.blockInput = true;
-      this.door.turnRight(() => this.blockInput = false);
+    else if(action == "RIGHT"){      
+      this.checkInput(1);
     }
-    else if(action == "UP"){
-      this.door.toggleDoor(false, () => {})
-      // this.door.spinFuriously(() => {});
-      this.keypad.stop();
-      this.keypad.setCustomText("XXXX");
+  }
+
+  private checkInput(action: number) {
+    this.blockInput = true;
+    var nextPassword = this.password.dequeue();
+
+    if(nextPassword == action){
+      if(nextPassword == 0){
+        this.door.turnLeft().then(this.checkForgameCompletion.bind(this))
+      }
+      else{
+        this.door.turnRight().then(this.checkForgameCompletion.bind(this));
+      }
     }
     else{
-      this.door.toggleDoor(true, () => {})
+      this.keypad.stop();
+      this.keypad.setErrorText();
+      this.door.spinFuriously().then(() => this.resetGame(0));
+    }
+  }
+  private checkForgameCompletion() {
+    if(this.isGameComplete()){
+      this.keypad.stop();
+      this.door.toggleDoor(true).then(() => this.resetGame());
+    }
+    else{
+      this.blockInput = false
+    }
+  }
+
+  private resetGame(time: number = config.global.gameTimeout){
+    this.password = generatePassword(config.password);
+    wait(time).then(() => {
       this.keypad.reset();
       this.keypad.start();
-      // this.door.spinFuriously(() => {})
-    }
+      this.door.toggleDoor(false).then(() => {this.blockInput = false;});
+    });
   }
 }

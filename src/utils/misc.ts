@@ -1,7 +1,7 @@
 import { DisplayObject, Sprite } from "pixi.js";
-import { SpriteConfig } from "../prefabs/Door";
-import { SimplePoint } from "../prefabs/SimplePoint";
-import { GlobalConfig } from "../scenes/Game";
+import { GlobalConfig, PasswordConfig } from "../scenes/Game";
+import Queue from "../prefabs/Queue";
+import { SpriteConfig } from "../prefabs/SpriteConfig";
 
 /** 
  * center objects to the middle of the window 
@@ -74,3 +74,26 @@ export function toNumber(value: string | number): number {
   }
   return num;
 }
+
+export function generatePassword(config: PasswordConfig): Queue<number> {
+    const queue = new Queue<number>();
+    let passwordStr:string = "Password: "; 
+    for (let i = 0; i < config.squences; i++) {
+      const randomNum = Math.floor(Math.random() * config.maxTurns) + 1;
+      const dir = Math.floor(Math.random() * 2);
+      passwordStr += randomNum;
+
+      if(dir == 0){
+        passwordStr += "CCW "
+      }
+      else{
+        passwordStr += "CW "
+      }
+
+      for (let i = 0; i < randomNum; i++) {
+        queue.enqueue(dir);
+      }
+    }
+    console.log(passwordStr);
+    return queue;
+  }
