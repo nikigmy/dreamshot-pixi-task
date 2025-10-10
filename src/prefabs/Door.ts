@@ -50,11 +50,13 @@ export default class Door extends Container {
         processSpriteResize(sprite, config, window.innerWidth, window.innerHeight, this.globalConfig);
         return sprite;
     }
+
     private handleClick(event: FederatedPointerEvent) {
         const localPos = event.data.getLocalPosition(this);
 
         (this as any).emit("doorClicked", localPos);
-     }
+    }
+    
     public turnLeft(){
         return this.turnHandle(this.config.handleSpinDegrees);
     }

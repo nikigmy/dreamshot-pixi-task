@@ -38,11 +38,8 @@ export default class Game extends Container {
   }
 
   async load() {
-
-    // example use of Pixi Graphics
     const bg = new Graphics().beginFill(0x0b1354).drawRect(0, 0, window.innerWidth, window.innerHeight)
 
-    // example use of Pixi Text
     const text = new Text("Loading...", {
       fontFamily: "Verdana",
       fontSize: 50,
@@ -137,6 +134,7 @@ export default class Game extends Container {
       this.door.spinFuriously().then(() => this.resetGame(0));
     }
   }
+  
   private checkForgameCompletion() {
     if(this.isGameComplete()){
       this.keypad.stop();
