@@ -38,6 +38,6 @@ export default class App extends Application {
       this.game.onResize?.(target.innerWidth, target.innerHeight);
     });
 
-    this.ticker.add((delta) => this.game.update(delta));
+    this.ticker.add(() => this.game.update(this.ticker.elapsedMS));
   }
 }
