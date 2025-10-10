@@ -1,4 +1,4 @@
-import { Container, IDestroyOptions, Sprite, Texture } from "pixi.js";
+import { Container, FederatedPointerEvent, IDestroyOptions, Sprite, Texture } from "pixi.js";
 import { centerObjects, processSpriteResize } from "../utils/misc";
 import gsap from "gsap";
 import { GlobalConfig } from "../scenes/Game";
@@ -31,6 +31,8 @@ export default class Door extends Container {
         centerObjects(this);
 
         this.closedSprite = this.loadSprite(this.config.closed, 1);
+        this.closedSprite.eventMode = 'static';
+        this.closedSprite.on('pointerdown', this.handleClick.bind(this));
         this.handleShadowSprite = this.loadSprite(this.config.handleShadow, 1);
         this.handleSprite = this.loadSprite(this.config.handle, 1);
 
@@ -48,7 +50,11 @@ export default class Door extends Container {
         processSpriteResize(sprite, config, window.innerWidth, window.innerHeight, this.globalConfig);
         return sprite;
     }
+    private handleClick(event: FederatedPointerEvent) {
+        const localPos = event.data.getLocalPosition(this);
 
+        (this as any).emit("doorClicked", localPos);
+     }
     public turnLeft(){
         return this.turnHandle(this.config.handleSpinDegrees);
     }
