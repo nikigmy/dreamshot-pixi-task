@@ -1,6 +1,6 @@
 import config from "../config";
 import CenteredBackground from "../prefabs/CenteredBackground";
-import { Container, Text, Graphics, Point } from "pixi.js";
+import { Container, Text, Graphics, FederatedPointerEvent } from "pixi.js";
 import { generatePassword, wait } from "../utils/misc";
 import Keyboard from "../core/Keyboard";
 import { SceneUtils } from "../core/App";
@@ -62,20 +62,23 @@ export default class Game extends Container {
 
     this.background = new CenteredBackground(config.backgrounds.vault, config.global);
     this.door = new Door(config.door, config.global);
-    (this.door as any).on("doorClicked", (data: Point) => {
-      if(data.x <= 0){
-        this.onActionPress("LEFT");
-      }
-      else{
-        this.onActionPress("RIGHT");
-      }
-    });
+    this.door.on('pointerdown', (e) => this.handleDoorClick(e));
 
     this.keypad = new Keypad(config.keypad);
     this.sparcles = new Sparcles(config.sparcles, config.global);
     this.keypad.start();
 
     this.addChild(this.background, this.door, this.keypad, this.sparcles);
+  }
+
+  private handleDoorClick(e: FederatedPointerEvent): void {
+    const localPos = e.getLocalPosition(this.door);
+    if(localPos.x <= 0){
+        this.onActionPress("LEFT");
+      }
+      else{
+        this.onActionPress("RIGHT");
+      }
   }
 
   /**

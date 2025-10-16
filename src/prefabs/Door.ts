@@ -54,9 +54,7 @@ export default class Door extends Container {
     }
 
     private handleClick(event: FederatedPointerEvent) {
-        const localPos = event.data.getLocalPosition(this);
-
-        (this as any).emit("doorClicked", localPos);
+        this.emit('pointerdown', event);
     }
     
     public async turn(direction: number){
