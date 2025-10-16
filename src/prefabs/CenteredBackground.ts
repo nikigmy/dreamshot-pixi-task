@@ -10,7 +10,7 @@ export type BgConfig = {
 export default class CenteredBackground extends Container {
   name = "Background";
 
-  sprites: Sprite [] = []
+  sprites: Sprite[] = [];
 
   constructor(
     protected config: BgConfig,
@@ -27,7 +27,10 @@ export default class CenteredBackground extends Container {
       const texture = Texture.from(layer);
 
       const sprite = new Sprite(texture);
-      sprite.anchor.set(this.config.spriteConfig.anchor?.x, this.config.spriteConfig.anchor?.y);
+      sprite.anchor.set(
+        this.config.spriteConfig.anchor?.x,
+        this.config.spriteConfig.anchor?.y
+      );
       sprite.name = layer;
 
       this.sprites.push(sprite);

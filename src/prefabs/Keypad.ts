@@ -2,18 +2,17 @@ import { gsap } from "gsap";
 import { SimplePoint } from "./SimplePoint";
 import { Container, ITextStyle, Text } from "pixi.js";
 
-
 export type KeypadConfig = {
-    offset: SimplePoint;
-    referenceScreenHeigh: number;
-    errorText: string;
-    blinkingDuration: number;
-    anchor: SimplePoint;
-    textStyle: Partial<ITextStyle>;
-}
+  offset: SimplePoint;
+  referenceScreenHeigh: number;
+  errorText: string;
+  blinkingDuration: number;
+  anchor: SimplePoint;
+  textStyle: Partial<ITextStyle>;
+};
 
-export  default class Keypad extends Container {
-  private elapsed: number = 0; 
+export default class Keypad extends Container {
+  private elapsed: number = 0;
   private display: Text;
   private running: boolean = false;
   private blinkTimeline!: gsap.core.Timeline;
@@ -26,51 +25,52 @@ export  default class Keypad extends Container {
     this.addChild(this.display);
   }
 
-    private formatTime(ms: number): string {
-        const totalSeconds = Math.floor(ms / 1000);
-        const minutes = Math.floor(totalSeconds / 60);
-        const seconds = totalSeconds % 60;
-        const secStr = seconds < 10 ? `0${seconds}` : `${seconds}`;
-        return `${minutes}:${secStr}`;
-    }
+  private formatTime(ms: number): string {
+    const totalSeconds = Math.floor(ms / 1000);
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    const secStr = seconds < 10 ? `0${seconds}` : `${seconds}`;
+    return `${minutes}:${secStr}`;
+  }
 
-    public start() {
-        if (!this.running) {
-        this.running = true;
-        }
+  public start() {
+    if (!this.running) {
+      this.running = true;
     }
+  }
 
-    public stop() {
-        this.running = false;
-        this.startBlinking();
-    }
+  public stop() {
+    this.running = false;
+    this.startBlinking();
+  }
 
-    public startBlinking(){
-        this.blinkTimeline = gsap.timeline({defaults : { duration : 0.5}})
-        .to(this.display, {alpha: 0, repeat: -1, yoyo: true})
-    }
-    public stopBlinking(){
-        this.blinkTimeline.kill();
-        gsap.to(this.display, {alpha: 1})
-    }
+  public startBlinking() {
+    this.blinkTimeline = gsap
+      .timeline({ defaults: { duration: 0.5 } })
+      .to(this.display, { alpha: 0, repeat: -1, yoyo: true });
+  }
+  public stopBlinking() {
+    this.blinkTimeline.kill();
+    gsap.to(this.display, { alpha: 1 });
+  }
 
-    public setErrorText(){
-        this.display.text = this.config.errorText;
-    }
+  public setErrorText() {
+    this.display.text = this.config.errorText;
+  }
 
-    public setCustomText(str: string){
-        this.display.text = str;
-    }
+  public setCustomText(str: string) {
+    this.display.text = str;
+  }
 
-    public reset() {
-        this.elapsed = 0;
-        this.display.text = this.formatTime(0);
-        this.stopBlinking();
-    }
+  public reset() {
+    this.elapsed = 0;
+    this.display.text = this.formatTime(0);
+    this.stopBlinking();
+  }
 
-    public update(deltaMs: number) {
-        if (!this.running) return;
-        this.elapsed += deltaMs;
-        this.display.text = this.formatTime(this.elapsed);
-    }
+  public update(deltaMs: number) {
+    if (!this.running) return;
+    this.elapsed += deltaMs;
+    this.display.text = this.formatTime(this.elapsed);
+  }
 }

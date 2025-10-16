@@ -1,7 +1,12 @@
 import config from "../config";
 import CenteredBackground from "../prefabs/CenteredBackground";
 import { Container, Text, Graphics, FederatedPointerEvent } from "pixi.js";
-import { centerObjects, generatePassword, getScreenScaling, wait } from "../utils/misc";
+import {
+  centerObjects,
+  generatePassword,
+  getScreenScaling,
+  wait,
+} from "../utils/misc";
 import Keyboard from "../core/Keyboard";
 import { SceneUtils } from "../core/App";
 import Door from "../prefabs/Door";
@@ -11,14 +16,14 @@ import Queue from "../prefabs/Queue";
 import Sparcles from "../prefabs/Sparcles";
 
 export type GlobalConfig = {
-  minAspectRatio: number,
-  referenceResolution: SimplePoint,
+  minAspectRatio: number;
+  referenceResolution: SimplePoint;
   gameTimeout: number;
-}
+};
 export type PasswordConfig = {
-  maxTurns: number,
-  squences: number,
-}
+  maxTurns: number;
+  squences: number;
+};
 
 export default class Game extends Container {
   name = "Game";
@@ -38,7 +43,9 @@ export default class Game extends Container {
   }
 
   async load() {
-    const bg = new Graphics().beginFill(0x0b1354).drawRect(0, 0, window.innerWidth, window.innerHeight)
+    const bg = new Graphics()
+      .beginFill(0x0b1354)
+      .drawRect(0, 0, window.innerWidth, window.innerHeight);
 
     const text = new Text("Loading...", {
       fontFamily: "Verdana",
@@ -55,14 +62,16 @@ export default class Game extends Container {
     });
   }
 
-
   async start() {
     this.removeChildren();
     this.password = generatePassword(config.password);
 
-    this.background = new CenteredBackground(config.backgrounds.vault, config.global);
+    this.background = new CenteredBackground(
+      config.backgrounds.vault,
+      config.global
+    );
     this.door = new Door(config.door, config.global);
-    this.door.on('pointerdown', (e) => this.handleDoorClick(e));
+    this.door.on("pointerdown", (e) => this.handleDoorClick(e));
 
     this.keypad = new Keypad(config.keypad);
     this.sparcles = new Sparcles(config.sparcles, config.global);
@@ -75,12 +84,11 @@ export default class Game extends Container {
 
   private handleDoorClick(e: FederatedPointerEvent): void {
     const localPos = e.getLocalPosition(this.door);
-    if(localPos.x <= 0){
-        this.onActionPress("LEFT");
-      }
-      else{
-        this.onActionPress("RIGHT");
-      }
+    if (localPos.x <= 0) {
+      this.onActionPress("LEFT");
+    } else {
+      this.onActionPress("RIGHT");
+    }
   }
 
   /**
@@ -102,19 +110,18 @@ export default class Game extends Container {
     this.scale.set(screenScaling, screenScaling);
   }
 
-  public isGameComplete (): boolean{
+  public isGameComplete(): boolean {
     return this.password.isEmpty();
   }
 
   private onActionPress(action: keyof typeof Keyboard.actions) {
-    if(this.blockInput){
+    if (this.blockInput) {
       return;
     }
 
-    if(action === "LEFT"){
+    if (action === "LEFT") {
       this.checkInput(0);
-    }
-    else if(action === "RIGHT"){
+    } else if (action === "RIGHT") {
       this.checkInput(1);
     }
   }
@@ -123,31 +130,29 @@ export default class Game extends Container {
     this.blockInput = true;
     var nextPassword = this.password.dequeue();
 
-    if(nextPassword === action){
-        await this.door.turn(nextPassword);
-        this.checkForgameCompletion();
-    }
-    else{
+    if (nextPassword === action) {
+      await this.door.turn(nextPassword);
+      this.checkForgameCompletion();
+    } else {
       this.keypad.stop();
       this.keypad.setErrorText();
       await this.door.spinFuriously();
-      this.resetGame(0)
+      this.resetGame(0);
     }
   }
 
   private async checkForgameCompletion() {
-    if(this.isGameComplete()){
+    if (this.isGameComplete()) {
       this.keypad.stop();
       await this.door.toggleDoor(true);
       this.sparcles.showEffect();
       this.resetGame();
-    }
-    else{
-      this.blockInput = false
+    } else {
+      this.blockInput = false;
     }
   }
 
-  private async resetGame(time: number = config.global.gameTimeout){
+  private async resetGame(time: number = config.global.gameTimeout) {
     this.password = generatePassword(config.password);
     await wait(time);
     this.keypad.reset();
