@@ -68,8 +68,7 @@ export default class Door extends Container {
 
     private turnHandle(degrees: number){
         const timeline = gsap.timeline({defaults : { duration : this.config.handleSpinDiration}});
-        timeline.to(this.handleSprite,       {  angle: `-=${degrees}`});
-        timeline.to(this.handleShadowSprite, {  angle: `-=${degrees}`}, "<");
+        timeline.to([this.handleSprite, this.handleShadowSprite],       {  angle: `-=${degrees}`});
 
         return new Promise<void>((res) => timeline.eventCallback('onComplete', res));
     }
@@ -77,12 +76,10 @@ export default class Door extends Container {
     public spinFuriously(){
         const timeline = gsap.timeline()
         const spin = gsap.timeline({defaults : { duration : this.config.handleSpinDiration, repeat: this.config.spinRepeats}})
-        .to(this.handleSprite,       {  angle: '+=360', ease: 'none'})
-        .to(this.handleShadowSprite, {  angle: '+=360', ease: 'none'}, "<");
+        .to([this.handleSprite, this.handleShadowSprite],       {  angle: '+=360', ease: 'none'})
 
         timeline.add(spin)
-        .to(this.handleSprite,       {  angle: 0, ease: 'none'})
-        .to(this.handleShadowSprite, {  angle: 0, ease: 'none'}, "<");
+        .to([this.handleSprite, this.handleShadowSprite],       {  angle: 0, ease: 'none'})
 
         return new Promise<void>((res) => timeline.eventCallback('onComplete', res));
     }
@@ -93,11 +90,8 @@ export default class Door extends Container {
         
         const timeline = gsap.timeline({defaults : { duration : this.config.openDuration}});
 
-        timeline.to(this.handleSprite,       {alpha: closedObjectsAlpha})
-        timeline.to(this.handleShadowSprite, {alpha: closedObjectsAlpha}, "<")
-        timeline.to(this.closedSprite,       {alpha: closedObjectsAlpha}, "<")
-        timeline.to(this.openSprite,         {alpha: openObjectsAlpha},   "<")
-        timeline.to(this.openShadow,         {alpha: openObjectsAlpha},   "<")
+        timeline.to([this.handleSprite, this.handleShadowSprite, this.closedSprite],       {alpha: closedObjectsAlpha})
+        timeline.to([this.openSprite, this.openShadow],         {alpha: openObjectsAlpha},   "<")
 
         return new Promise<void>((res) => timeline.eventCallback('onComplete', res));
     }
