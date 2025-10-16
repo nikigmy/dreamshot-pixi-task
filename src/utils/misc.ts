@@ -1,7 +1,6 @@
 import { DisplayObject, Sprite } from "pixi.js";
 import { GlobalConfig, PasswordConfig } from "../scenes/Game";
 import Queue from "../prefabs/Queue";
-import { SpriteConfig } from "../prefabs/SpriteConfig";
 
 /** 
  * center objects to the middle of the window 
@@ -18,7 +17,16 @@ export function centerObjects(...toCenter: DisplayObject[]) {
 
   toCenter.forEach(center);
 }
+export function centerObjectsToParent(...toCenter: DisplayObject[]) {
+  const center = (obj: DisplayObject) => {
 
+    if (obj instanceof Sprite) {
+      obj.anchor.set(0.5);
+    }
+  };
+
+  toCenter.forEach(center);
+}
 export function wait(seconds: number) {
   return new Promise<void>((res) => setTimeout(res, seconds * 1000));
 }
@@ -35,13 +43,6 @@ export function getEntries<T extends object>(obj: T) {
   return Object.entries(obj) as Entries<T>;
 }
 
-
-export function  resizeSprite(sprite: Sprite, scaling: number, width: number, height: number, globalConfig: GlobalConfig) {
-    const screenScaling = getScreenScaling(width,  height, globalConfig);
-    sprite.height = sprite.texture.height * scaling * screenScaling;
-    sprite.width = sprite.texture.width * scaling * screenScaling;
-}
-
 export function getScreenScaling(width: number, height: number, globalConfig: GlobalConfig): number{
     const aspectRatio = width / height;
 
@@ -50,17 +51,6 @@ export function getScreenScaling(width: number, height: number, globalConfig: Gl
         height = width / globalConfig.minAspectRatio;
     }
     return height / globalConfig.referenceResolution.y;
-}
-
-export function  repositionSprite(sprite: Sprite, offsetX: number, offsetY: number) {
-    const scalingRatio = sprite.height / sprite.texture.height;
-    sprite.position.set(offsetX * scalingRatio, offsetY * scalingRatio)
-}
-
-
-export function processSpriteResize(sprite: Sprite, config: Partial<SpriteConfig>, width: number, height: number, globalConfig: GlobalConfig) {
-    resizeSprite(sprite, config.scaling!, width, height, globalConfig);
-    repositionSprite(sprite, config.offset!.x, config.offset!.y);
 }
 
 export function toNumber(value: string | number): number {

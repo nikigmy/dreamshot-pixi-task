@@ -1,7 +1,7 @@
 import config from "../config";
 import CenteredBackground from "../prefabs/CenteredBackground";
 import { Container, Text, Graphics, FederatedPointerEvent } from "pixi.js";
-import { generatePassword, wait } from "../utils/misc";
+import { centerObjects, generatePassword, getScreenScaling, wait } from "../utils/misc";
 import Keyboard from "../core/Keyboard";
 import { SceneUtils } from "../core/App";
 import Door from "../prefabs/Door";
@@ -54,7 +54,7 @@ export default class Game extends Container {
       if (buttonState === "pressed") this.onActionPress(action);
     });
   }
-  
+
 
   async start() {
     this.removeChildren();
@@ -69,6 +69,8 @@ export default class Game extends Container {
     this.keypad.start();
 
     this.addChild(this.background, this.door, this.keypad, this.sparcles);
+
+    this.onResize(window.innerWidth, window.innerHeight);
   }
 
   private handleDoorClick(e: FederatedPointerEvent): void {
@@ -83,7 +85,7 @@ export default class Game extends Container {
 
   /**
    * Called on every ticker update
-   * @param delta 
+   * @param delta
    */
   update(delta: number) {
     this.keypad.update(delta);
@@ -91,21 +93,19 @@ export default class Game extends Container {
 
   /**
    * Called on resize of scene
-   * @param width 
-   * @param height 
+   * @param width
+   * @param height
    */
   onResize(width: number, height: number) {
-    // resize handling logic here
-    this.background.resize(width, height);
-    this.door.resize(width, height);
-    this.keypad.resize(width, height);
-    this.sparcles.resize(width, height);
+    centerObjects(this);
+    var screenScaling = getScreenScaling(width, height, config.global);
+    this.scale.set(screenScaling, screenScaling);
   }
 
   public isGameComplete (): boolean{
     return this.password.isEmpty();
   }
-  
+
   private onActionPress(action: keyof typeof Keyboard.actions) {
     if(this.blockInput){
       return;
@@ -114,7 +114,7 @@ export default class Game extends Container {
     if(action === "LEFT"){
       this.checkInput(0);
     }
-    else if(action === "RIGHT"){      
+    else if(action === "RIGHT"){
       this.checkInput(1);
     }
   }

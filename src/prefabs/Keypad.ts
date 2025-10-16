@@ -1,5 +1,4 @@
 import { gsap } from "gsap";
-import { centerObjects, toNumber } from "../utils/misc";
 import { SimplePoint } from "./SimplePoint";
 import { Container, ITextStyle, Text } from "pixi.js";
 
@@ -23,21 +22,9 @@ export  default class Keypad extends Container {
     super();
     this.display = new Text(this.formatTime(0), this.config.textStyle);
     this.display.anchor.set(this.config.anchor.x, this.config.anchor.y);
-    this.resizeTimer(window.innerWidth, window.innerHeight);
+    this.display.position.set(this.config.offset.x, this.config.offset.y);
     this.addChild(this.display);
-    centerObjects(this);
   }
-    resizeTimer(width:number, height: number) {
-        const aspectRatio = width / height;
-
-        if(aspectRatio < 1)
-        {
-            height = width / 1;
-        }
-        const scaleFactor = height / this.config.referenceScreenHeigh;
-        this.display.position.set(this.config.offset.x * scaleFactor, this.config.offset.y * scaleFactor);
-        this.display.style.fontSize = toNumber(this.config.textStyle.fontSize!) * scaleFactor;
-    }
 
     private formatTime(ms: number): string {
         const totalSeconds = Math.floor(ms / 1000);
@@ -85,9 +72,5 @@ export  default class Keypad extends Container {
         if (!this.running) return;
         this.elapsed += deltaMs;
         this.display.text = this.formatTime(this.elapsed);
-    }
-    public resize(width: number, height: number) {
-        centerObjects(this);
-        this.resizeTimer(width, height);
     }
 }

@@ -1,5 +1,4 @@
 import { Container, FederatedPointerEvent, IDestroyOptions, Sprite, Texture } from "pixi.js";
-import { centerObjects, processSpriteResize } from "../utils/misc";
 import gsap from "gsap";
 import { GlobalConfig } from "../scenes/Game";
 import { SpriteConfig } from "./SpriteConfig";
@@ -29,7 +28,6 @@ export default class Door extends Container {
 
     constructor(protected config: DoorConfig, protected globalConfig: GlobalConfig) {
         super();
-        centerObjects(this);
 
         this.closedSprite = this.loadSprite(this.config.closed, 1);
         this.closedSprite.eventMode = 'static';
@@ -46,10 +44,11 @@ export default class Door extends Container {
         const texture = Texture.from(config.name);
         const sprite = new Sprite(texture);
         sprite.anchor.set(config.anchor.x, config.anchor.y);
+        sprite.position.set(config.offset.x, config.offset.y);
+        sprite.scale.set(config.scaling);
         sprite.name = config.name;
         sprite.alpha = alpha;
         this.addChild(sprite);
-        processSpriteResize(sprite, config, window.innerWidth, window.innerHeight, this.globalConfig);
         return sprite;
     }
 
@@ -105,16 +104,6 @@ export default class Door extends Container {
 
         await timeline;
         this.isOpen = open;
-    }
-
-    public resize(width: number, height: number) {
-        processSpriteResize(this.closedSprite, this.config.closed, width, height, this.globalConfig);
-        processSpriteResize(this.handleSprite, this.config.handle, width, height, this.globalConfig);
-        processSpriteResize(this.handleShadowSprite, this.config.handleShadow, width, height, this.globalConfig);
-        processSpriteResize(this.openSprite, this.config.open, width, height, this.globalConfig);
-        processSpriteResize(this.openShadow, this.config.openShadow, width, height, this.globalConfig);
-
-        centerObjects(this);
     }
 
     public destroy(options?: IDestroyOptions | boolean): void {

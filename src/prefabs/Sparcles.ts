@@ -1,7 +1,7 @@
 import { Container, Sprite, Texture } from "pixi.js";
 import gsap from "gsap";
 import { SpriteConfig } from "./SpriteConfig";
-import { centerObjects, processSpriteResize, randomInt, randomFloat } from "../utils/misc";
+import { randomInt, randomFloat } from "../utils/misc";
 import { GlobalConfig } from "../scenes/Game";
 
 export type SparclesConfig = {
@@ -20,7 +20,6 @@ export default class Sparcles extends Container {
 
     constructor(protected config: SparclesConfig, protected globalConfig: GlobalConfig) {
         super();
-        centerObjects(this);
         this.init();
     }
 
@@ -37,8 +36,8 @@ export default class Sparcles extends Container {
             sprite.alpha = 0;
             sprite.anchor.set(this.config.spriteConfig.anchor!.x, this.config.spriteConfig.anchor!.y);
             sprite.position.set(posX, posY);
+            sprite.scale.set(this.config.spriteConfig.scaling);
             this.addChild(sprite);
-            processSpriteResize(sprite, newConfig, window.innerWidth, window.innerHeight, this.globalConfig)
             this.sprites.push([sprite, newConfig]);
         }
     }
@@ -61,14 +60,6 @@ export default class Sparcles extends Container {
         for(let i = 0; i < this.config.count; i++)
         {
             tl.to(this.sprites[i][0], {alpha: 0}, "<")
-        }
-    }
-
-    public resize(width: number, height: number){
-        centerObjects(this);
-        for(let i = 0; i < this.config.count; i++)
-        {
-            processSpriteResize(this.sprites[i][0], this.sprites[i][1], width, height, this.globalConfig)
         }
     }
 }
