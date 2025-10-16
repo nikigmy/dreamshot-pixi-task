@@ -1,7 +1,7 @@
 import { Container, Sprite, Texture } from "pixi.js";
 import gsap from "gsap";
 import { SpriteConfig } from "./SpriteConfig";
-import { centerObjects, processSpriteResize } from "../utils/misc";
+import { centerObjects, processSpriteResize, randomInt, randomFloat } from "../utils/misc";
 import { GlobalConfig } from "../scenes/Game";
 
 export type SparclesConfig = {
@@ -28,8 +28,8 @@ export default class Sparcles extends Container {
         for(let i = 0; i < this.config.count; i++)
         {
             var newConfig = structuredClone(this.config.spriteConfig);
-            var posX = Math.floor(Math.random() * this.config.radius * 2) + 1 - this.config.radius;
-            var posY = Math.floor(Math.random() * this.config.radius * 2) + 1 - this.config.radius;
+            var posX = randomInt(-this.config.radius, this.config.radius);
+            var posY = randomInt(-this.config.radius, this.config.radius);
             newConfig.offset = {x: posX, y: posY};
 
             const texture = Texture.from(this.config.spriteConfig.name!);
@@ -47,7 +47,7 @@ export default class Sparcles extends Container {
         this.timeline = gsap.timeline({defaults : { yoyo: true, repeat: -1}});
         for(let i = 0; i < this.config.count; i++)
         {
-            const duration = Math.random() * (this.config.maxDuration - this.config.minDuration + 1) + this.config.minDuration;
+            const duration = randomFloat(this.config.minDuration, this.config.maxDuration);
             this.timeline.to(this.sprites[i][0], {alpha: 1, duration: duration}, "<")
         }
     }

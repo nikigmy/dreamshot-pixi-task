@@ -79,8 +79,8 @@ export function generatePassword(config: PasswordConfig): Queue<number> {
     const queue = new Queue<number>();
     let passwordStr:string = "Password: "; 
     for (let i = 0; i < config.squences; i++) {
-      const randomNum = Math.floor(Math.random() * config.maxTurns) + 1;
-      const dir = Math.floor(Math.random() * 2);
+      const randomNum = randomInt(1, config.maxTurns);
+      const dir = randomInt(0,1);
       passwordStr += randomNum;
 
       if(dir === 0){
@@ -97,3 +97,13 @@ export function generatePassword(config: PasswordConfig): Queue<number> {
     console.log(passwordStr);
     return queue;
   }
+
+export function randomInt(min: number, max: number): number {
+    const lo = Math.ceil(min);
+    const hi = Math.floor(max);
+    return Math.floor(Math.random() * (hi - lo + 1)) + lo;
+  }
+
+export function randomFloat(min: number, max: number): number {
+  return Math.random() * (max - min) + min;
+}
