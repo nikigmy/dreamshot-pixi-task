@@ -17,7 +17,6 @@ export default class Sparcles extends Container {
 
     private sprites: [Sprite, Partial<SpriteConfig>][] = [];
     private timeline!: gsap.core.Timeline;
-    private isEffectActive: boolean = false;
 
     constructor(protected config: SparclesConfig, protected globalConfig: GlobalConfig) {
         super();
@@ -51,11 +50,10 @@ export default class Sparcles extends Container {
             const duration = Math.random() * (this.config.maxDuration - this.config.minDuration + 1) + this.config.minDuration;
             this.timeline.to(this.sprites[i][0], {alpha: 1, duration: duration}, "<")
         }
-        this.isEffectActive = true;
     }
 
     public stopEffect(){
-        if(!this.isEffectActive)
+        if(this.timeline === null || this.timeline === undefined)
             return;
 
         this.timeline.kill();
