@@ -18,7 +18,6 @@ export  default class Keypad extends Container {
   private display: Text;
   private running: boolean = false;
   private blinkTimeline!: gsap.core.Timeline;
-  temp!: number | string; 
 
   constructor(protected config: KeypadConfig) {
     super();
