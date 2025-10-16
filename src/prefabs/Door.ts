@@ -58,30 +58,30 @@ export default class Door extends Container {
         (this as any).emit("doorClicked", localPos);
     }
     
-    public turn(direction: number){
+    public async turn(direction: number){
         var degrees = this.config.handleSpinDegrees;
         if(direction === 1){
             degrees *= -1;
         }
-        return this.turnHandle(degrees);
+        await this.turnHandle(degrees);
     }
 
-    public turnLeft(){
-        return this.turnHandle(this.config.handleSpinDegrees);
+    public async turnLeft(){
+        await this.turnHandle(this.config.handleSpinDegrees);
     }
 
-    public turnRight(){
-        return this.turnHandle(-this.config.handleSpinDegrees);
+    public async turnRight(){
+        await this.turnHandle(-this.config.handleSpinDegrees);
     }
 
-    private turnHandle(degrees: number){
+    private async turnHandle(degrees: number){
         const timeline = gsap.timeline({defaults : { duration : this.config.handleSpinDiration}});
         timeline.to([this.handleSprite, this.handleShadowSprite],       {  angle: `-=${degrees}`});
 
-        return new Promise<void>((res) => timeline.eventCallback('onComplete', res));
+        await timeline;
     }
 
-    public spinFuriously(){
+    public async spinFuriously(){
         const timeline = gsap.timeline()
         const spin = gsap.timeline({defaults : { duration : this.config.handleSpinDiration, repeat: this.config.spinRepeats}})
         .to([this.handleSprite, this.handleShadowSprite],       {  angle: '+=360', ease: 'none'})
@@ -89,10 +89,10 @@ export default class Door extends Container {
         timeline.add(spin)
         .to([this.handleSprite, this.handleShadowSprite],       {  angle: 0, ease: 'none'})
 
-        return new Promise<void>((res) => timeline.eventCallback('onComplete', res));
+        await timeline;
     }
 
-    public toggleDoor(open: boolean){
+    public async toggleDoor(open: boolean){
         const openObjectsAlpha = open ? 1 : 0;
         const closedObjectsAlpha = open ? 0 : 1;
         
@@ -101,7 +101,7 @@ export default class Door extends Container {
         timeline.to([this.handleSprite, this.handleShadowSprite, this.closedSprite],       {alpha: closedObjectsAlpha})
         timeline.to([this.openSprite, this.openShadow],         {alpha: openObjectsAlpha},   "<")
 
-        return new Promise<void>((res) => timeline.eventCallback('onComplete', res));
+        await timeline;
     }
 
     public resize(width: number, height: number) {

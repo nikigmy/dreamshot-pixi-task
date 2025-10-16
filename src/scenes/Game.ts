@@ -116,40 +116,41 @@ export default class Game extends Container {
     }
   }
 
-  private checkInput(action: number) {
+  private async checkInput(action: number) {
     this.blockInput = true;
     var nextPassword = this.password.dequeue();
 
     if(nextPassword === action){
-        this.door.turn(nextPassword).then(this.checkForgameCompletion.bind(this))
+        await this.door.turn(nextPassword);
+        this.checkForgameCompletion();
     }
     else{
       this.keypad.stop();
       this.keypad.setErrorText();
-      this.door.spinFuriously().then(() => this.resetGame(0));
+      await this.door.spinFuriously();
+      this.resetGame(0)
     }
   }
 
-  private checkForgameCompletion() {
+  private async checkForgameCompletion() {
     if(this.isGameComplete()){
       this.keypad.stop();
-      this.door.toggleDoor(true).then(() => {
-          this.sparcles.showEffect();
-          this.resetGame();
-      });
+      await this.door.toggleDoor(true);
+      this.sparcles.showEffect();
+      this.resetGame();
     }
     else{
       this.blockInput = false
     }
   }
 
-  private resetGame(time: number = config.global.gameTimeout){
+  private async resetGame(time: number = config.global.gameTimeout){
     this.password = generatePassword(config.password);
-    wait(time).then(() => {
-      this.keypad.reset();
-      this.keypad.start();
-      this.sparcles.stopEffect();
-      this.door.toggleDoor(false).then(() => {this.blockInput = false;});
-    });
+    await wait(time);
+    this.keypad.reset();
+    this.keypad.start();
+    this.sparcles.stopEffect();
+    await this.door.toggleDoor(false);
+    this.blockInput = false;
   }
 }
