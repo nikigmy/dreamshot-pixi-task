@@ -32,6 +32,7 @@ export default class Door extends Container {
 
         this.closedSprite = this.loadSprite(this.config.closed, 1);
         this.closedSprite.eventMode = 'static';
+        this.closedSprite.cursor = "pointer";
         this.closedSprite.on('pointerdown', this.handleClick.bind(this));
         this.handleShadowSprite = this.loadSprite(this.config.handleShadow, 1);
         this.handleSprite = this.loadSprite(this.config.handle, 1);
