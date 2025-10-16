@@ -108,10 +108,10 @@ export default class Game extends Container {
       return;
     }
 
-    if(action == "LEFT"){
+    if(action === "LEFT"){
       this.checkInput(0);
     }
-    else if(action == "RIGHT"){      
+    else if(action === "RIGHT"){      
       this.checkInput(1);
     }
   }
@@ -120,8 +120,8 @@ export default class Game extends Container {
     this.blockInput = true;
     var nextPassword = this.password.dequeue();
 
-    if(nextPassword == action){
-      if(nextPassword == 0){
+    if(nextPassword === action){
+      if(nextPassword === 0){
         this.door.turnLeft().then(this.checkForgameCompletion.bind(this))
       }
       else{
@@ -134,7 +134,7 @@ export default class Game extends Container {
       this.door.spinFuriously().then(() => this.resetGame(0));
     }
   }
-  
+
   private checkForgameCompletion() {
     if(this.isGameComplete()){
       this.keypad.stop();

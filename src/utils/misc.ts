@@ -83,7 +83,7 @@ export function generatePassword(config: PasswordConfig): Queue<number> {
       const dir = Math.floor(Math.random() * 2);
       passwordStr += randomNum;
 
-      if(dir == 0){
+      if(dir === 0){
         passwordStr += "CCW "
       }
       else{
