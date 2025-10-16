@@ -25,6 +25,7 @@ export default class Door extends Container {
     private handleShadowSprite!: Sprite;
     private openSprite: Sprite;
     private openShadow: Sprite;
+    private isOpen: boolean = false;
 
     constructor(protected config: DoorConfig, protected globalConfig: GlobalConfig) {
         super();
@@ -93,6 +94,9 @@ export default class Door extends Container {
     }
 
     public async toggleDoor(open: boolean){
+        if(this.isOpen == open){
+            return;
+        }
         const openObjectsAlpha = open ? 1 : 0;
         const closedObjectsAlpha = open ? 0 : 1;
         
@@ -102,6 +106,7 @@ export default class Door extends Container {
         timeline.to([this.openSprite, this.openShadow],         {alpha: openObjectsAlpha},   "<")
 
         await timeline;
+        this.isOpen = open;
     }
 
     public resize(width: number, height: number) {
