@@ -58,6 +58,14 @@ export default class Door extends Container {
         (this as any).emit("doorClicked", localPos);
     }
     
+    public turn(direction: number){
+        var degrees = this.config.handleSpinDegrees;
+        if(direction === 1){
+            degrees *= -1;
+        }
+        return this.turnHandle(degrees);
+    }
+
     public turnLeft(){
         return this.turnHandle(this.config.handleSpinDegrees);
     }

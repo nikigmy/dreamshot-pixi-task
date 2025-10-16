@@ -121,12 +121,7 @@ export default class Game extends Container {
     var nextPassword = this.password.dequeue();
 
     if(nextPassword === action){
-      if(nextPassword === 0){
-        this.door.turnLeft().then(this.checkForgameCompletion.bind(this))
-      }
-      else{
-        this.door.turnRight().then(this.checkForgameCompletion.bind(this));
-      }
+        this.door.turn(nextPassword).then(this.checkForgameCompletion.bind(this))
     }
     else{
       this.keypad.stop();
