@@ -1,119 +1,151 @@
-import { Container, FederatedPointerEvent, IDestroyOptions, Sprite, Texture } from "pixi.js";
-import { centerObjects, processSpriteResize } from "../utils/misc";
+import {
+  Container,
+  FederatedPointerEvent,
+  IDestroyOptions,
+  Sprite,
+  Texture,
+} from "pixi.js";
 import gsap from "gsap";
 import { GlobalConfig } from "../scenes/Game";
 import { SpriteConfig } from "./SpriteConfig";
 
-
 export type DoorConfig = {
-    closed: SpriteConfig;
-    handle: SpriteConfig;
-    handleShadow: SpriteConfig;
-    open: SpriteConfig;
-    openShadow: SpriteConfig;
-    handleSpinDiration: number;
-    handleSpinDegrees: number;
-    openDuration: number;
-    spinRepeats: number;
+  closed: SpriteConfig;
+  handle: SpriteConfig;
+  handleShadow: SpriteConfig;
+  open: SpriteConfig;
+  openShadow: SpriteConfig;
+  handleSpinDiration: number;
+  handleSpinDegrees: number;
+  openDuration: number;
+  spinRepeats: number;
 };
 
 export default class Door extends Container {
   name = "Door";
 
-    private closedSprite: Sprite;
-    private handleSprite: Sprite;
-    private handleShadowSprite!: Sprite;
-    private openSprite: Sprite;
-    private openShadow: Sprite;
+  private closedSprite: Sprite;
+  private handleSprite: Sprite;
+  private handleShadowSprite!: Sprite;
+  private openSprite: Sprite;
+  private openShadow: Sprite;
+  private isOpen: boolean = false;
 
-    constructor(protected config: DoorConfig, protected globalConfig: GlobalConfig) {
-        super();
-        centerObjects(this);
+  constructor(
+    protected config: DoorConfig,
+    protected globalConfig: GlobalConfig
+  ) {
+    super();
 
-        this.closedSprite = this.loadSprite(this.config.closed, 1);
-        this.closedSprite.eventMode = 'static';
-        this.closedSprite.on('pointerdown', this.handleClick.bind(this));
-        this.handleShadowSprite = this.loadSprite(this.config.handleShadow, 1);
-        this.handleSprite = this.loadSprite(this.config.handle, 1);
+    this.closedSprite = this.loadSprite(this.config.closed, 1);
+    this.closedSprite.eventMode = "static";
+    this.closedSprite.cursor = "pointer";
+    this.closedSprite.on("pointerdown", (e) => this.handleClick(e));
+    this.handleShadowSprite = this.loadSprite(this.config.handleShadow, 1);
+    this.handleSprite = this.loadSprite(this.config.handle, 1);
 
-        this.openShadow = this.loadSprite(this.config.openShadow, 0);
-        this.openSprite = this.loadSprite(this.config.open, 0);
+    this.openShadow = this.loadSprite(this.config.openShadow, 0);
+    this.openSprite = this.loadSprite(this.config.open, 0);
+  }
+
+  private loadSprite(config: SpriteConfig, alpha: number): Sprite {
+    const texture = Texture.from(config.name);
+    const sprite = new Sprite(texture);
+    sprite.anchor.set(config.anchor.x, config.anchor.y);
+    sprite.position.set(config.offset.x, config.offset.y);
+    sprite.scale.set(config.scaling);
+    sprite.name = config.name;
+    sprite.alpha = alpha;
+    this.addChild(sprite);
+    return sprite;
+  }
+
+  private handleClick(event: FederatedPointerEvent) {
+    this.emit("pointerdown", event);
+  }
+
+  public async turn(direction: number) {
+    var degrees = this.config.handleSpinDegrees;
+    if (direction === 1) {
+      degrees *= -1;
     }
+    await this.turnHandle(degrees);
+  }
 
-    private loadSprite(config: SpriteConfig, alpha: number): Sprite{
-        const texture = Texture.from(config.name);
-        const sprite = new Sprite(texture);
-        sprite.anchor.set(config.anchor.x, config.anchor.y);
-        sprite.name = config.name;
-        sprite.alpha = alpha;
-        this.addChild(sprite);
-        processSpriteResize(sprite, config, window.innerWidth, window.innerHeight, this.globalConfig);
-        return sprite;
+  public async turnLeft() {
+    await this.turnHandle(this.config.handleSpinDegrees);
+  }
+
+  public async turnRight() {
+    await this.turnHandle(-this.config.handleSpinDegrees);
+  }
+
+  private async turnHandle(degrees: number) {
+    const timeline = gsap.timeline({
+      defaults: { duration: this.config.handleSpinDiration },
+    });
+    timeline.to([this.handleSprite, this.handleShadowSprite], {
+      angle: `-=${degrees}`,
+    });
+
+    await timeline;
+  }
+
+  public async spinFuriously() {
+    const timeline = gsap.timeline();
+    const spin = gsap
+      .timeline({
+        defaults: {
+          duration: this.config.handleSpinDiration,
+          repeat: this.config.spinRepeats,
+        },
+      })
+      .to([this.handleSprite, this.handleShadowSprite], {
+        angle: "+=360",
+        ease: "none",
+      });
+
+    timeline.add(spin).to([this.handleSprite, this.handleShadowSprite], {
+      angle: 0,
+      ease: "none",
+    });
+
+    await timeline;
+  }
+
+  public async toggleDoor(open: boolean) {
+    if (this.isOpen == open) {
+      return;
     }
+    const openObjectsAlpha = open ? 1 : 0;
+    const closedObjectsAlpha = open ? 0 : 1;
 
-    private handleClick(event: FederatedPointerEvent) {
-        const localPos = event.data.getLocalPosition(this);
+    const timeline = gsap.timeline({
+      defaults: { duration: this.config.openDuration },
+    });
 
-        (this as any).emit("doorClicked", localPos);
-    }
-    
-    public turnLeft(){
-        return this.turnHandle(this.config.handleSpinDegrees);
-    }
+    timeline.to(
+      [this.handleSprite, this.handleShadowSprite, this.closedSprite],
+      { alpha: closedObjectsAlpha }
+    );
+    timeline.to(
+      [this.openSprite, this.openShadow],
+      { alpha: openObjectsAlpha },
+      "<"
+    );
 
-    public turnRight(){
-        return this.turnHandle(-this.config.handleSpinDegrees);
-    }
+    await timeline;
+    this.isOpen = open;
+  }
 
-    private turnHandle(degrees: number){
-        const timeline = gsap.timeline({defaults : { duration : this.config.handleSpinDiration}});
-        timeline.to(this.handleSprite,       {  angle: `-=${degrees}`});
-        timeline.to(this.handleShadowSprite, {  angle: `-=${degrees}`}, "<");
-
-        return new Promise<void>((res) => timeline.eventCallback('onComplete', res));
-    }
-
-    public spinFuriously(){
-        const timeline = gsap.timeline()
-        const spin = gsap.timeline({defaults : { duration : this.config.handleSpinDiration, repeat: this.config.spinRepeats}})
-        .to(this.handleSprite,       {  angle: '+=360', ease: 'none'})
-        .to(this.handleShadowSprite, {  angle: '+=360', ease: 'none'}, "<");
-
-        timeline.add(spin)
-        .to(this.handleSprite,       {  angle: 0, ease: 'none'})
-        .to(this.handleShadowSprite, {  angle: 0, ease: 'none'}, "<");
-
-        return new Promise<void>((res) => timeline.eventCallback('onComplete', res));
-    }
-
-    public toggleDoor(open: boolean){
-        const openObjectsAlpha = open ? 1 : 0;
-        const closedObjectsAlpha = open ? 0 : 1;
-        
-        const timeline = gsap.timeline({defaults : { duration : this.config.openDuration}});
-
-        timeline.to(this.handleSprite,       {alpha: closedObjectsAlpha})
-        timeline.to(this.handleShadowSprite, {alpha: closedObjectsAlpha}, "<")
-        timeline.to(this.closedSprite,       {alpha: closedObjectsAlpha}, "<")
-        timeline.to(this.openSprite,         {alpha: openObjectsAlpha},   "<")
-        timeline.to(this.openShadow,         {alpha: openObjectsAlpha},   "<")
-
-        return new Promise<void>((res) => timeline.eventCallback('onComplete', res));
-    }
-
-    public resize(width: number, height: number) {
-        processSpriteResize(this.closedSprite, this.config.closed, width, height, this.globalConfig);
-        processSpriteResize(this.handleSprite, this.config.handle, width, height, this.globalConfig);
-        processSpriteResize(this.handleShadowSprite, this.config.handleShadow, width, height, this.globalConfig);
-        processSpriteResize(this.openSprite, this.config.open, width, height, this.globalConfig);
-        processSpriteResize(this.openShadow, this.config.openShadow, width, height, this.globalConfig);
-
-        centerObjects(this);
-    }
-
-    public destroy(options?: IDestroyOptions | boolean): void {
-        gsap.killTweensOf([this.closedSprite, this.handleSprite, this.handleShadowSprite, this.openSprite, this.openShadow]);
-        super.destroy(options);
-    }
+  public destroy(options?: IDestroyOptions | boolean): void {
+    gsap.killTweensOf([
+      this.closedSprite,
+      this.handleSprite,
+      this.handleShadowSprite,
+      this.openSprite,
+      this.openShadow,
+    ]);
+    super.destroy(options);
+  }
 }
-

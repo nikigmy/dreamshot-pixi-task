@@ -28,7 +28,9 @@ export default class AssetLoader {
       Assets.add(asset.name, asset.url);
     }
 
-    const resources = await Assets.load(this.manifest.map((asset) => asset.name));
+    const resources = await Assets.load(
+      this.manifest.map((asset) => asset.name)
+    );
 
     Debug.log("✅ Loaded assets", resources);
 

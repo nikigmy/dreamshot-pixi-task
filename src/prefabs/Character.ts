@@ -20,7 +20,6 @@ type AnimState = {
  * Example class showcasing the usage of animations
  */
 export class Character extends Container {
-
   anim: SpritesheetAnimation;
 
   static animStates: Record<string, AnimState> = {
@@ -39,7 +38,7 @@ export class Character extends Container {
       anim: "walk",
       loop: true,
       speed: 1,
-    }
+    },
   };
 
   config = {
@@ -51,7 +50,7 @@ export class Character extends Container {
       height: 300,
       duration: 0.3,
       ease: "sine",
-    }
+    },
   };
 
   jumping = false;

@@ -1,10 +1,9 @@
 import { DisplayObject, Sprite } from "pixi.js";
 import { GlobalConfig, PasswordConfig } from "../scenes/Game";
 import Queue from "../prefabs/Queue";
-import { SpriteConfig } from "../prefabs/SpriteConfig";
 
-/** 
- * center objects to the middle of the window 
+/**
+ * center objects to the middle of the window
  */
 export function centerObjects(...toCenter: DisplayObject[]) {
   const center = (obj: DisplayObject) => {
@@ -18,7 +17,15 @@ export function centerObjects(...toCenter: DisplayObject[]) {
 
   toCenter.forEach(center);
 }
+export function centerObjectsToParent(...toCenter: DisplayObject[]) {
+  const center = (obj: DisplayObject) => {
+    if (obj instanceof Sprite) {
+      obj.anchor.set(0.5);
+    }
+  };
 
+  toCenter.forEach(center);
+}
 export function wait(seconds: number) {
   return new Promise<void>((res) => setTimeout(res, seconds * 1000));
 }
@@ -35,32 +42,17 @@ export function getEntries<T extends object>(obj: T) {
   return Object.entries(obj) as Entries<T>;
 }
 
+export function getScreenScaling(
+  width: number,
+  height: number,
+  globalConfig: GlobalConfig
+): number {
+  const aspectRatio = width / height;
 
-export function  resizeSprite(sprite: Sprite, scaling: number, width: number, height: number, globalConfig: GlobalConfig) {
-    const screenScaling = getScreenScaling(width,  height, globalConfig);
-    sprite.height = sprite.texture.height * scaling * screenScaling;
-    sprite.width = sprite.texture.width * scaling * screenScaling;
-}
-
-export function getScreenScaling(width: number, height: number, globalConfig: GlobalConfig): number{
-    const aspectRatio = width / height;
-
-    if(aspectRatio < globalConfig.minAspectRatio)
-    {
-        height = width / globalConfig.minAspectRatio;
-    }
-    return height / globalConfig.referenceResolution.y;
-}
-
-export function  repositionSprite(sprite: Sprite, offsetX: number, offsetY: number) {
-    const scalingRatio = sprite.height / sprite.texture.height;
-    sprite.position.set(offsetX * scalingRatio, offsetY * scalingRatio)
-}
-
-
-export function processSpriteResize(sprite: Sprite, config: Partial<SpriteConfig>, width: number, height: number, globalConfig: GlobalConfig) {
-    resizeSprite(sprite, config.scaling!, width, height, globalConfig);
-    repositionSprite(sprite, config.offset!.x, config.offset!.y);
+  if (aspectRatio < globalConfig.minAspectRatio) {
+    height = width / globalConfig.minAspectRatio;
+  }
+  return height / globalConfig.referenceResolution.y;
 }
 
 export function toNumber(value: string | number): number {
@@ -76,24 +68,33 @@ export function toNumber(value: string | number): number {
 }
 
 export function generatePassword(config: PasswordConfig): Queue<number> {
-    const queue = new Queue<number>();
-    let passwordStr:string = "Password: "; 
-    for (let i = 0; i < config.squences; i++) {
-      const randomNum = Math.floor(Math.random() * config.maxTurns) + 1;
-      const dir = Math.floor(Math.random() * 2);
-      passwordStr += randomNum;
+  const queue = new Queue<number>();
+  let passwordStr: string = "Password: ";
+  for (let i = 0; i < config.squences; i++) {
+    const randomNum = randomInt(1, config.maxTurns);
+    const dir = randomInt(0, 1);
+    passwordStr += randomNum;
 
-      if(dir == 0){
-        passwordStr += "CCW "
-      }
-      else{
-        passwordStr += "CW "
-      }
-
-      for (let i = 0; i < randomNum; i++) {
-        queue.enqueue(dir);
-      }
+    if (dir === 0) {
+      passwordStr += "CCW ";
+    } else {
+      passwordStr += "CW ";
     }
-    console.log(passwordStr);
-    return queue;
+
+    for (let i = 0; i < randomNum; i++) {
+      queue.enqueue(dir);
+    }
   }
+  console.log(passwordStr);
+  return queue;
+}
+
+export function randomInt(min: number, max: number): number {
+  const lo = Math.ceil(min);
+  const hi = Math.floor(max);
+  return Math.floor(Math.random() * (hi - lo + 1)) + lo;
+}
+
+export function randomFloat(min: number, max: number): number {
+  return Math.random() * (max - min) + min;
+}
